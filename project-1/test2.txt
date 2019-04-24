@@ -1,0 +1,26 @@
+!Find area of a circle!
+function areaofcircle$ [radius:float]
+{
+	float pi = 3.14;
+	return(pi*(radius*radius));
+}
+
+function areawithdiameter[diameter:float]
+{
+	return(areaofcircle(diameter/2));
+}
+
+int choose$;	! Choose to use radius or diameter !
+choose$ = 0;
+float radius, diameter, area$;
+
+
+if(choose$ = 1)
+{
+	put(areaofcircle$(radius));
+}
+else
+{
+	if(choose$ = 2)
+	{
+		put(areawithdiameter(diamet

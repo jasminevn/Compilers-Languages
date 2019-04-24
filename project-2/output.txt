@@ -1,0 +1,38 @@
+RULE: <E> ---> <TQ>
+RULE: <T> ---> <FR>
+RULE: <F> ---> <i>
+---- Lexeme processed: a
+RULE: <R> ---> <e>
+RULE: <Q> ---> <+TQ>
+---- Lexeme processed: +
+RULE: <T> ---> <FR>
+RULE: <F> ---> <i>
+---- Lexeme processed: b
+RULE: <R> ---> <e>
+RULE: <Q> ---> <e>
+---- Lexeme processed: ;
+RULE: <E> ---> <TQ>
+RULE: <T> ---> <FR>
+RULE: <F> ---> <i>
+---- Lexeme processed: c
+RULE: <R> ---> </FR>
+---- Lexeme processed: /
+Error : 3 is not being processed yet.
+Error : 3 is not being processed yet.
+
+
+
+Token          Lexeme
+
+Identifier:    a
+Operator  :    +
+Identifier:    b
+Separator :    ;
+Identifier:    c
+Operator  :    /
+Integer   :    3
+Separator :    ;
+Identifier:    asd
+Operator  :    *
+Identifier:    dsm
+Separator :    ;

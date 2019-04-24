@@ -1,0 +1,31 @@
+RULE: <E> ---> <TQ>
+RULE: <T> ---> <FR>
+RULE: <F> ---> <i>
+Lexeme: a    Token: 
+RULE: <R> ---> <e>
+RULE: <Q> ---> <+TQ>
+Lexeme: +    Token: 
+RULE: <T> ---> <FR>
+RULE: <F> ---> <i>
+Lexeme: b    Token: 
+RULE: <R> ---> <e>
+RULE: <Q> ---> <e>
+Lexeme: ;    Token: 
+RULE: <E> ---> <TQ>
+RULE: <T> ---> <FR>
+RULE: <F> ---> <i>
+Lexeme: c    Token: 
+RULE: <R> ---> </FR>
+Lexeme: /    Token: 
+RULE: <F> ---> <i>
+Lexeme: d    Token: 
+RULE: <R> ---> <e>
+RULE: <Q> ---> <e>
+Lexeme: ;    Token: 
+RULE: <E> ---> <TQ>
+RULE: <T> ---> <FR>
+RULE: <F> ---> <i>
+Lexeme: fsdf    Token: 
+RULE: <R> ---> <e>
+RULE: <Q> ---> <-TQ>
+Lexeme: -    Token: 
