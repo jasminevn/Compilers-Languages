@@ -5,3 +5,4 @@ x=a + b;
 z=c+ d;
 a=e-f;
 b=g*n;
+while ( b < 2) b = 3;

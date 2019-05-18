@@ -1,0 +1,168 @@
+A : start statement
+I : if statement
+L : while statement
+S : assignment statement
+E : expression
+i : identifier
+n : integer
+RULE: < A > ---> < S >
+RULE: < S > ---> < i=E >
+---- Lexeme processed: qer
+---- Lexeme processed: =
+RULE: < E > ---> < TQ >
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: m
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < -TQ >
+---- Lexeme processed: -
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: a
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < e > 
+---- Lexeme processed: ;
+Error : % cannot be processed.
+Error : % cannot be processed.
+RULE: < A > ---> < S >
+RULE: < S > ---> < i=E >
+---- Lexeme processed: x
+---- Lexeme processed: =
+RULE: < E > ---> < TQ >
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: a
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < +TQ >
+---- Lexeme processed: +
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: b
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < e > 
+---- Lexeme processed: ;
+RULE: < A > ---> < S >
+RULE: < S > ---> < i=E >
+---- Lexeme processed: z
+---- Lexeme processed: =
+RULE: < E > ---> < TQ >
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: c
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < +TQ >
+---- Lexeme processed: +
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: d
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < e > 
+---- Lexeme processed: ;
+RULE: < A > ---> < S >
+RULE: < S > ---> < i=E >
+---- Lexeme processed: a
+---- Lexeme processed: =
+RULE: < E > ---> < TQ >
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: e
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < -TQ >
+---- Lexeme processed: -
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: f
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < e > 
+---- Lexeme processed: ;
+RULE: < A > ---> < S >
+RULE: < S > ---> < i=E >
+---- Lexeme processed: b
+---- Lexeme processed: =
+RULE: < E > ---> < TQ >
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: g
+RULE: < R > ---> < *FR >
+---- Lexeme processed: *
+RULE: < F > ---> < i >
+---- Lexeme processed: n
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < e > 
+---- Lexeme processed: ;
+RULE: < A > ---> < L >
+RULE: < L > ---> < while(EJ)S >
+---- Lexeme processed: while
+---- Lexeme processed: (
+RULE: < E > ---> < TQ >
+RULE: < T > ---> < FR >
+RULE: < F > ---> < i >
+---- Lexeme processed: b
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < e > 
+RULE: < J > ---> < <E >
+---- Lexeme processed: <
+RULE: < E > ---> < TQ >
+RULE: < T > ---> < FR >
+RULE: < F > ---> < integer >
+---- Lexeme processed: 2
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < e > 
+---- Lexeme processed: )
+RULE: < S > ---> < i=E >
+---- Lexeme processed: b
+---- Lexeme processed: =
+RULE: < E > ---> < TQ >
+RULE: < T > ---> < FR >
+RULE: < F > ---> < integer >
+---- Lexeme processed: 3
+RULE: < R > ---> < e > 
+RULE: < Q > ---> < e > 
+---- Lexeme processed: ;
+
+
+
+Token          Lexeme
+
+Identifier:    qer
+Operator  :    =
+Identifier:    m
+Operator  :    -
+Identifier:    a
+Separator :    ;
+Operator  :    %
+Operator  :    %
+Identifier:    x
+Operator  :    =
+Identifier:    a
+Operator  :    +
+Identifier:    b
+Separator :    ;
+Identifier:    z
+Operator  :    =
+Identifier:    c
+Operator  :    +
+Identifier:    d
+Separator :    ;
+Identifier:    a
+Operator  :    =
+Identifier:    e
+Operator  :    -
+Identifier:    f
+Separator :    ;
+Identifier:    b
+Operator  :    =
+Identifier:    g
+Operator  :    *
+Identifier:    n
+Separator :    ;
+Keyword   :    while
+Separator :    (
+Identifier:    b
+Operator  :    <
+Integer   :    2
+Separator :    )
+Identifier:    b
+Operator  :    =
+Integer   :    3
+Separator :    ;

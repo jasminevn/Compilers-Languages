@@ -1,5 +1,7 @@
 // CPSC323 assignment 2
 // Yong Kim
+// Dong Hao
+// Haojie Pan
 //// - add a syntactic analyzer to the lexer which was made in assignment 1
 
 #include <iostream>
@@ -100,9 +102,16 @@ typedef enum Cur_char {
 	LEFT_PAREN,			// 5	(
 	RIGHT_PAREN,			// 6	)
 	S_C,				// 7 	;
-
+	EQU,				// 8	=
+	UNDECIDED,			// 9	UNDECIDED
+	LESS,				// 10	<
+	GREATER,			// 11	>
+	IF,				// 12	if 'f'
+	ELSE,				// 13	else 's'
+	WHILE,				// 14	while 'w'
+	INT,				// 15	integer 'n'
 	// Cur_char number, put a new char above this line
-	TDP_INPUT			// 8	
+	TDP_INPUT			// 16
 } Cur_char;
 
 const size_t TDP_NCOL = TDP_INPUT; 	// the # of cols in TDP table
@@ -113,9 +122,15 @@ typedef enum Production_rule {
 	T,				// 2	T
 	R,				// 3	R
 	F,				// 4	F
+	S,				// 5	S	assignment
+	A,				// 6 	A	start
+	I,				// 7	I	if statement
+	J, 				// 8	J	relop >, <
+	K,				// 9	K	else statement
+	L,				// 10	L	while loop
 
 	// Production_rule number, put a new rule above this line
-	TDP_EXP				// 5
+	TDP_EXP				// 11
 } Production_rule;
 
 const size_t TDP_NROW = TDP_EXP;	// the # of rows in TDP table
@@ -123,12 +138,18 @@ const size_t TDP_NROW = TDP_EXP;	// the # of rows in TDP table
 
 class TDP {										// Data structure for the Table Driven Parser
 	private:
-		string tdp_table[TDP_NROW][TDP_NCOL] = {							//	id	+	-	*	/	(	)	;	
-				{"TQ"	, "NULL", "NULL", "NULL", "NULL", "TQ"	, "NULL", "NULL"},		// E |  TQ					TQ			
-				{"NULL"	, "+TQ"	, "-TQ"	, "NULL", "NULL", "NULL", "e"	, "e"	},		// Q |		+TQ	-TQ				e	e	
-				{"FR"	, "NULL", "NULL", "NULL", "NULL", "FR"	, "NULL", "NULL"},		// T |	FR					FR		
-				{"NULL"	, "e"	, "e"	, "*FR"	, "/FR"	, "NULL", "e"	, "e"	},		// R |		e	e	*FR	/FR		e	e
-				{"i"	, "NULL", "NULL", "NULL", "NULL", "(E)"	, "NULL", "NULL"}		// F |	i					(E)
+		string tdp_table[TDP_NROW][TDP_NCOL] = {																//	id	+	-	*	/	(	)	;	=	UNDECIDED >	<	if	else	while	n
+				{"TQ"	, "NULL", "NULL", "NULL", "NULL", "TQ"	, "NULL", "NULL", "NULL", "skip", "NULL", "NULL", "NULL", "NULL", "NULL", "TQ"	},	// E |  TQ					TQ				skip						TQ	TQ	TQ
+				{"NULL"	, "+TQ"	, "-TQ"	, "NULL", "NULL", "NULL", "e"	, "e"	, "NULL", "skip", "e"	, "e"	, "NULL", "NULL", "NULL", "NULL"},	// Q |		+TQ	-TQ				e	e		skip	  e	e
+				{"FR"	, "NULL", "NULL", "NULL", "NULL", "FR"	, "NULL", "NULL", "NULL", "skip", "NULL", "NULL", "NULL", "NULL", "NULL", "FR"	},	// T |	FR					FR				skip						FR	FR	FR
+				{"NULL"	, "e"	, "e"	, "*FR"	, "/FR"	, "NULL", "e"	, "e"	, "NULL", "skip", "e"	, "e"	, "NULL", "NULL", "NULL", "NULL"},	// R |		e	e	*FR	/FR		e	e		skip	  e	e
+				{"i"	, "NULL", "NULL", "NULL", "NULL", "(E)"	, "NULL", "NULL", "NULL", "skip", "NULL", "NULL", "NULL", "NULL", "NULL", "n"	},	// F |	i					(E)				skip						n	t	u
+				{"i=E"	, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "skip", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL"},	// S |	i=E									skip						
+				{"S"	, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "skip", "NULL", "NULL", "I"	, "NULL", "L"	, "NULL"},	// A |	S									skip			I		L	
+				{"NULL"	, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "skip", "NULL", "NULL","f(EJ)K","NULL", "NULL", "NULL"},	// I |										skip			f(EJ)K
+				{"NULL"	, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "skip", "<E"	, ">E"	, "NULL", "NULL", "NULL", "NULL"},	// J |										skip	  >E	<E
+				{"S"	, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "skip", "NULL", "NULL", "NULL", "sS"	, "NULL", "NULL"},	// K |	S									skip				sS
+				{"NULL"	, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "skip", "NULL", "NULL", "NULL", "NULL","w(EJ)S","NULL"}	// L |										skip					w(EJ)S
 		};
 	public:
 	class FSA {										// Data structure for the FSA table
@@ -300,7 +321,7 @@ void TDP::FSA::state_check(const int& state) {			// based on states, call add_le
 		add_lexeme(state);
 		return;
     	}
-    	else if (state == 4) {
+    	else if (state == 4 /*|| state == 9 || state == 10*/) {
 		while (cur_char.size() != 0) {
 	     		cur_char.pop();
 		}							
@@ -387,7 +408,7 @@ void TDP::FSA::print() {						// make the "output.txt" file
 	    		fout << left << setw(10) << "Operator" << setw(5) <<":" << lex_storage[i].lexeme << std::endl;
 		}
 		else if ( lex_storage[i].category == 6) {
-	    		if (lex_storage[i].lexeme[0] == ' ') {
+	    		if (lex_storage[i].lexeme[0] == ' ' || lex_storage[i].lexeme[0] == '!') {
 				continue;											// DO NOT PRINT!! TODO
 //				fout << left << setw(10) << "Separator" << setw(5) << ":" << "sp(space)" << std::endl;
 	    		}
@@ -437,6 +458,21 @@ int TDP::get_cur_exp(const char& c) {						// convert the EXPRESSION to int for 
 		c_exp = R;
 	} else if (c == 'F') {
 		c_exp = F;
+	} else if (c == 'S') {
+		c_exp = S;
+	} else if (c == 'A') {
+		c_exp = A;
+	} else if (c == 'I') {
+		c_exp = I;
+	} else if (c == 'J') {
+		c_exp = J;
+	} else if (c == 'K') {
+		c_exp = K;
+	} else if (c == 'L') {
+		c_exp = L;
+	} 
+	else {
+		cout << "c??? : " << c << endl;
 	}
        return c_exp;
 }
@@ -457,11 +493,22 @@ int TDP::get_cur_char(const char& c) {						// convert the current character to 
 		c_char = RIGHT_PAREN;
 	} else if (c == '$') {
 		c_char = S_C;
-//	} else if (c == ';') {
-//		c_char = S_C;
+	} else if (c == '=') {
+		c_char = EQU;
+	} else if (c == '>') {
+		c_char = GREATER;
+	} else if (c == '<') {
+		c_char = LESS;
+	} else if (c == 'f') {
+		c_char = IF;
+	} else if (c == 's') {
+		c_char = ELSE;
+	} else if (c == 'w') {
+		c_char = WHILE;
 	} else {
-		c_char = 9999;
-		fout << "Error : " << c << " is not being processed yet." << std::endl;
+		c_char = UNDECIDED;
+//		cout << "Error : " << c << " cannot be processed." << std::endl;	//TODO test
+//		fout << "Error : " << c << " cannot be processed." << std::endl;
 	}
 	return c_char;
 }
@@ -472,80 +519,121 @@ string TDP::get_rule(const int& row, const int& col) {				// get the table resul
 
 void TDP::parse(const TDP::FSA& fsa) {
 	size_t length = fsa.lex_storage.size();								// To get the modified length of test
-
 	std::queue <FSA::Token> c_terminal;								// current EXPRESSION w/o delimters
 	std::stack <char> exp;										// process of Production Rules
-
-	for (size_t i = 0; i < length; ++i) {
 	
+	fout << "A : start statement" << endl <<
+		"I : if statement" << endl <<
+		"L : while statement" << endl <<
+		"S : assignment statement" << endl <<
+		"E : expression" << endl <<
+		"i : identifier" << endl <<
+		"e : epsylon" << endl;	
+	for (size_t i = 0; i < length; ++i) {
 		FSA::Token end_sign;						
 		end_sign.lexeme = "$";
 		end_sign.category = 0;
-
+		
 		int tdp_r, tdp_c = 0;
 		char tmp_exp_top;
 		
-		if(fsa.lex_storage[i].lexeme[0] != ';' && fsa.lex_storage[i].lexeme[0] != ' ') {	// Make a current EXPRESSION	
-			c_terminal.push(fsa.lex_storage[i]);						// if lexeme is not a separator, add to current Expression	
-		}
-		if(fsa.lex_storage[i].lexeme[0] == ' ') {						// if lexeme is a ' '(space) or '\n'(line feed), skip it
+		if(fsa.lex_storage[i].lexeme[0] != ';' && fsa.lex_storage[i].lexeme[0] != ' ' && fsa.lex_storage[i].lexeme[0] != '!') {		// Make a current EXPRESSION	
+			c_terminal.push(fsa.lex_storage[i]);						// if lexeme is not ' ', ';', or '!', add to current Expression	
 		}
 		if(fsa.lex_storage[i].lexeme[0] == ';') {						// if lexeme is ';' 
-			exp.push('$');									// add '$' and 'E' to the "exp"stack
-			exp.push('E'); 				
+			exp.push('$');									// add '$' and 'A' to the "exp"stack
+			exp.push('A');										 				
 			c_terminal.push(end_sign);							// also add '$'(end_sign token) to c_terminal
 			string rule;									
 			rule.clear();
-
-			while(exp.size() != 0) {							// processing the "exp" stack(=expression)
+			
+			while(!exp.empty()) {								// processing the "exp" stack(=expression)
 				tmp_exp_top = exp.top();						// store the top of the stack
-				exp.pop();								
-
 				tdp_r = get_cur_exp(tmp_exp_top);					// convert the EXPRESSION to an int to put into TABLE 
-
 				if (c_terminal.front().category == 2) {					// check if the current character is identifier or not
 					tdp_c = 0;
+				} else if (c_terminal.front().lexeme == "if") {
+					tdp_c = 12;
+				} else if (c_terminal.front().lexeme == "else") {
+					tdp_c = 13;
+				} else if (c_terminal.front().lexeme == "while") {
+					tdp_c = 14;
+				} else if (c_terminal.front().category == 3) {
+					tdp_c = 15;
 				} else {
 					tdp_c = get_cur_char(c_terminal.front().lexeme[0]);		// get the current character and convert to an int for TABLE
-					if (tdp_c == 9999) {break;}					// ERROR
 				}
-				
+
 				rule = get_rule(tdp_r, tdp_c);						// use TABLE
 				
 				if (rule == "NULL") {							// case - Not Accepted
-					fout << "Error : On this current lexeme, " << c_terminal.front().lexeme;
-					fout << ", the syntax is wrong." << std::endl;
+					exp.pop();						
+					fout << "Error : No productuion rule for this lexeme, " << c_terminal.front().lexeme;
+					fout << " ." << std::endl;
 					rule.clear();
 					break;
 				} else if (rule == "e") {						// case - "epsilon"
-					fout << "RULE: <" << tmp_exp_top << "> ---> <" << rule << ">" << std::endl;
+					exp.pop();							
+					fout << "RULE: < " << tmp_exp_top << " > ---> < " << rule << " > " << std::endl;
 					rule.clear();
+				} else if (rule == "skip") {
+					fout << "Error : " << c_terminal.front().lexeme << " cannot be processed." << endl;
+					c_terminal.pop();
+					rule.clear();
+					break;
 				} else {								// case - a proper process
-					fout << "RULE: <" << tmp_exp_top << "> ---> <" << rule << ">" << std::endl;
+					exp.pop();
+					if ( rule == "f(EJ)K" ) {
+					fout << "RULE: < " << tmp_exp_top << " > ---> < if(EJ)K >" << std::endl;
+					} else if ( rule == "sS") {
+					fout << "RULE: < " << tmp_exp_top << " > ---> < else S >" << std::endl;
+					} else if ( rule == "w(EJ)S" ) {
+					fout << "RULE: < " << tmp_exp_top << " > ---> < while(EJ)S >" << std::endl;
+					} else if ( rule == "n" ) {
+					fout << "RULE: < " << tmp_exp_top << " > ---> < integer >" << std::endl;
+					} else {
+					fout << "RULE: < " << tmp_exp_top << " > ---> < " << rule << " >" << std::endl;
+					}
 					while(!rule.empty()) {
 						exp.push(rule.back());
 						rule.pop_back();
 					}
 					rule.clear();
 				}
-
-				if (exp.top() == c_terminal.front().lexeme[0] || (exp.top() == 'i' && c_terminal.front().category == 2)) {	// the top of the "exp" matches "current character"
-					if (c_terminal.front().lexeme != "$") { 
-					fout << "---- Lexeme processed: " << c_terminal.front().lexeme << std::endl; 
-					} else {
-					fout << "---- Lexeme processed: ;"<< std::endl;
-					}	
-					exp.pop();
-					c_terminal.pop();
+				while(!exp.empty() && (exp.top() < 'A' || exp.top() > 'Z')) {	
+					if (exp.top() == c_terminal.front().lexeme[0] || 
+					   (exp.top() == 'i' && c_terminal.front().category == 2) || 
+					   ((exp.top() == 'f') && (c_terminal.front().lexeme == "if")) || 
+					   ((exp.top() == 's') && (c_terminal.front().lexeme == "else")) ||
+					   ((exp.top() == 'w') && (c_terminal.front().lexeme == "while"))||
+					   ((exp.top() == 'n') && (c_terminal.front().category == 3)) ) {	// the top of the "exp" matches "current character"
+						if (c_terminal.front().lexeme != "$") { 
+							fout << "---- Lexeme processed: " << c_terminal.front().lexeme << std::endl;
+						} else {
+							fout << "---- Lexeme processed: ;"<< std::endl;
+						}
+						exp.pop();
+						c_terminal.pop();
+					} else  {
+						fout << "Error : not accepted, \'" << c_terminal.front().lexeme << "\' does not match with any rule." << endl;
+						fout << "This could be \'" << exp.top() << "\'." << endl;
+						while(!exp.empty()){
+						exp.pop();
+						}
+						while(!c_terminal.empty()){
+						c_terminal.pop();
+						}
+						break;
+					}
 				}
 			}
 		}
-		
 	}
 	fout<<endl;
 	fout<<endl;
 	fout<<endl;
 }
+
 		
 		
 
